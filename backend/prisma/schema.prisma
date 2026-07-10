@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      UserRole @default(GUARD)
+  createdAt DateTime @default(now())
+
+  // 🔗 RELATION
+  employeeId Int?     @unique
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+}
+
+model Employee {
+  id             Int      @id @default(autoincrement())
+
+  name           String
+  email          String?  @unique
+  phone          String?
+  type           EmployeeType
+  salary         Float?
+  status         EmployeeStatus @default(WORKING)
+  createdAt      DateTime @default(now())
+
+  contract       String?
+  emaratesId     String?
+  fileNumber     String   @unique
+  nsiCert        String?
+  passport       String?
+  pic            String?
+  psbdId         String?
+  birthDate      DateTime?
+  psbdExpiry     DateTime?
+  startDate      DateTime?
+  phoneNumber    String?
+  psbdNumber     String?
+  whatsapp       String?
+  nationality    String?
+
+  // 🔗 RELATION
+  user           User?
+
+  // existing relations
+  assignments    Assignment[]
+  attendance     Attendance[]
+  accommodations EmployeeAccommodation[]
+  payrolls       Payroll[]
+  vacations      Vacation[]
+}
+
+model Client {
+  id          String     @id @default(uuid())
+  name        String
+  contactInfo String?
+  createdAt   DateTime   @default(now())
+  contracts   Contract[]
+}
+
+model Contract {
+  id          String       @id @default(uuid())
+  clientId    String
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime     @default(now())
+  assignments Assignment[]
+  client      Client       @relation(fields: [clientId], references: [id])
+  locations   Location[]
+}
+
+model Location {
+  id             String       @id @default(uuid())
+  contractId     String
+  name           String
+  requiredGuards Int
+  createdAt      DateTime     @default(now())
+  femaleGuards   Int          @default(0)
+  femalePrice    Float        @default(0)
+  maleGuards     Int          @default(0)
+  malePrice      Float        @default(0)
+  assignments    Assignment[]
+  attendance     Attendance[]
+  contract       Contract     @relation(fields: [contractId], references: [id])
+}
+
+model Assignment {
+  id         String         @id @default(uuid())
+  employeeId Int
+  contractId String?
+  createdAt  DateTime       @default(now())
+  endDate    DateTime?
+  locationId String?
+  startDate  DateTime?
+  type       AssignmentType
+  contract   Contract?      @relation(fields: [contractId], references: [id])
+  employee   Employee       @relation(fields: [employeeId], references: [id])
+  location   Location?      @relation(fields: [locationId], references: [id])
+}
+
+model Attendance {
+  id         String    @id @default(uuid())
+  checkIn    DateTime?
+  checkOut   DateTime?
+  employeeId Int
+  date       DateTime
+  locationId String?
+  status     String?   @default("present") @db.VarChar(50)
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  location   Location? @relation(fields: [locationId], references: [id])
+
+  @@unique([employeeId, date])
+}
+
+model Payroll {
+  id         String   @id @default(uuid())
+  month      String
+  baseSalary Float
+  deductions Float    @default(0)
+  bonuses    Float    @default(0)
+  createdAt  DateTime @default(now())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Vacation {
+  id         String   @id @default(uuid())
+  employeeId Int
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  createdAt  DateTime @default(now())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Accommodation {
+  id        String                  @id @default(uuid())
+  name      String
+  capacity  Int
+  createdAt DateTime                @default(now())
+  employees EmployeeAccommodation[]
+}
+
+model EmployeeAccommodation {
+  id              String        @id @default(uuid())
+  employeeId      Int
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id])
+  employee        Employee      @relation(fields: [employeeId], references: [id])
+}
+
+enum EmployeeType {
+  MANAGER
+  HR
+  SUPERVISOR
+  GUARD
+}
+
+enum EmployeeStatus {
+  WORKING
+  VACATION
+  CANCELLED
+}
+
+enum UserRole {
+  ADMIN
+  SUPERVISOR
+  GUARD
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  OFF
+  VACATION
+}
+
+enum AssignmentType {
+  PERMANENT
+  RELIEVER
+  VACATION
+}
