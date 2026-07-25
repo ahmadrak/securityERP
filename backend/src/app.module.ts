@@ -13,9 +13,10 @@ import { PayrollModule } from './payroll/payroll.module';
 import { AuthModule } from './auth/auth.module';
 import { S3Module } from './s3/s3.module';
 import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [EmployeeModule, DatabaseModule, ClientModule, ContractModule, LocationModule, AssignmentModule, AttendanceModule, PayrollModule, AuthModule, S3Module, UserModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), EmployeeModule, DatabaseModule, ClientModule, ContractModule, LocationModule, AssignmentModule, AttendanceModule, PayrollModule, AuthModule, S3Module, UserModule],
   controllers: [AppController],
   providers: [AppService, DatabaseService],
 })
