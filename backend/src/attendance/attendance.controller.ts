@@ -11,7 +11,7 @@ import { UseGuards } from '@nestjs/common';
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
   
-  @Roles('ADMIN')
+  @Roles('ADMIN','GUARD')
   // ✅ Check-in
   @Post('check-in/:employeeId')
   checkIn(@Param('employeeId', ParseIntPipe) employeeId: number) {
@@ -19,7 +19,7 @@ export class AttendanceController {
   }
 
   // ✅ Check-out
-  @Roles('ADMIN')
+  @Roles('ADMIN','GUARD')
   @Post('check-out/:employeeId')
   checkOut(@Param('employeeId', ParseIntPipe) employeeId: number) {
     return this.attendanceService.checkOut(employeeId);
