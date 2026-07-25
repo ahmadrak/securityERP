@@ -35,7 +35,7 @@ findAll(@Query('employeeId') employeeId?: string) {
 
   return this.attendanceService.findAll();
 }
-@Roles('ADMIN', 'SUPERVISOR')
+@Roles('ADMIN', 'SUPERVISOR','GUARD')
 @Get(':employeeId')
 findByEmployee(
   @Param('employeeId', ParseIntPipe) employeeId: number,

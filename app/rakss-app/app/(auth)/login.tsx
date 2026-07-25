@@ -43,6 +43,8 @@ export default function Login() {
       // 🔐 save token
       await AsyncStorage.setItem('token', data.access_token);
       await AsyncStorage.setItem('role', data.user.role);
+      await AsyncStorage.setItem('employeeId', String(data.user.employeeId)); // 👈 هذا السطر ناقص
+
        console.log('ROLE:', data.user.role);
       // 👤 role-based navigation
       if (data.user.role === 'ADMIN') {
