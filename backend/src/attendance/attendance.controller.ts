@@ -40,7 +40,22 @@ export class AttendanceController {
   // ✅ Get all attendance
   @Roles('ADMIN', 'SUPERVISOR')
   @Get()
-findAll(@Query('employeeId') employeeId?: string) {
+findAll(
+  @Query('employeeId') employeeId?: string,
+  @Query('active') active?: string,
+  @Query('date') date?: string,
+  @Query('month') month?: string,
+  @Query('locationId') locationId?: string,
+) {
+  if (month) {
+    return this.attendanceService.findMonthlySummary(month, locationId);
+  }
+  if (date) {
+    return this.attendanceService.findRoster(date, locationId);
+  }
+  if (active === 'true') {
+    return this.attendanceService.findActive();
+  }
   if (employeeId) {
     return this.attendanceService.findByEmployee(Number(employeeId));
   }
