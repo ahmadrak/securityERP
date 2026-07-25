@@ -2,7 +2,8 @@ import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/
 import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -11,7 +12,7 @@ export class AuthService {
   ) {}
 
   // ✅ Register
-  async register(email: string, password: string) {
+  async register(email: RegisterDto['email'], password: RegisterDto['password']) {
     const existing = await this.db.user.findUnique({
       where: { email },
     });
@@ -29,12 +30,11 @@ export class AuthService {
       },
     });
 
-    return { message: 'User created successfully', user };
+    return { message: 'User created successfully' };
   }
 
   // ✅ Login
-  async login(email: string, password: string) {
-    console.log(email,password);
+  async login(email: LoginDto['email'] , password: LoginDto['password']) {
     const user = await this.db.user.findUnique({
       where: { email },
     });
