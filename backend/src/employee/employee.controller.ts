@@ -107,12 +107,13 @@ async create(
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.employeeService.findOne(id);
   }
-
+  
+  @Roles('ADMIN', 'SUPERVISOR')
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: Prisma.EmployeeUpdateInput) {
     return this.employeeService.update(id, dto); // pass the full object
   }
-
+  @Roles('ADMIN', 'SUPERVISOR')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.employeeService.remove(id);
