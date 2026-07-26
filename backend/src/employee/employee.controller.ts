@@ -54,8 +54,6 @@ async create(
   @Body() body: CreateEmployeeDto,
   @UploadedFiles() files: any,
 ) {
-console.log('BODY:', body);
-console.log('FILES:', files);
  return this.employeeService.create({
     name: body.name,
     email: body.email || null,
