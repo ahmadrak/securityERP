@@ -9,20 +9,62 @@ import { UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { S3Service } from '../s3/s3.service';
 import multer from 'multer';
+import { IsString, IsNotEmpty, IsEmail, IsOptional, IsEnum, IsNumberString } from 'class-validator';
+
 export class CreateEmployeeDto {
+  @IsString()
+  @IsNotEmpty()
   name!: string;
+ 
+  @IsOptional()
+  @IsEmail()
   email?: string;
+ 
+  @IsOptional()
+  @IsString()
   phone?: string;
+ 
+  @IsOptional()
+  @IsString()
   nationality?: string;
+ 
+  @IsEnum(EmployeeType)
   type!: EmployeeType;
+ 
+  @IsString()
+  @IsNotEmpty()
   fileNumber!: string;
+ 
+  @IsOptional()
+  @IsNumberString()
   salary?: number;
+ 
+  @IsOptional()
+  @IsString()
   phoneNumber?: string;
+ 
+  @IsOptional()
+  @IsString()
   whatsapp?: string;
+ 
+  @IsOptional()
+  @IsString()
   psbdNumber?: string;
+ 
+  @IsOptional()
+  @IsString()
   startDate?: string;
+ 
+  @IsOptional()
+  @IsString()
   birthDate?: string;
+ 
+  @IsOptional()
+  @IsString()
   psbdExpiry?: string;
+ 
+  @IsOptional()
+  @IsString()
   createUser?: string;
 }
 

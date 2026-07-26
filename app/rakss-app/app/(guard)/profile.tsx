@@ -81,19 +81,12 @@ export default function ProfileScreen() {
     Linking.openURL(url);
   };
 
-  const handleLogout = () => {
-    Alert.alert('تسجيل الخروج', 'متأكد إنك تبي تسجل خروج؟', [
-      { text: 'إلغاء', style: 'cancel' },
-      {
-        text: 'خروج',
-        style: 'destructive',
-        onPress: async () => {
+  const handleLogout = async () => {
           await AsyncStorage.multiRemove(['token', 'role', 'employeeId']);
           router.replace('/login');
-        },
-      },
-    ]);
-  };
+        }
+      
+ 
 
   if (loading) {
     return (
