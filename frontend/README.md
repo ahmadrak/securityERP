@@ -24,11 +24,3 @@
 | Payroll | `/payroll` | `/payroll` endpoints |
 | Data | `/data` | — |
 | Test | `/test` | Scratch/test page — remove before production |
-
----
-
-## Notes
-
-- The API client setup itself needs no changes; auth token injection and base URL are both correct.
-- Confirm the `/shifts` pages before shipping — there is no backend controller for a `shifts` resource, so either the pages call a different existing endpoint under a different name, or this feature is incomplete.
-- Remove or gate the `/test` page before production.
