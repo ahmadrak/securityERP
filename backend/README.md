@@ -1,98 +1,204 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# securityERP Backend — API Routes
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+**Base URL:** `http://localhost:4000`
+**Framework:** NestJS
+**Auth:** All routes except `auth/*` and `/` require `JwtAuthGuard` (`Authorization: Bearer <token>`) plus `RolesGuard` where a `@Roles(...)` decorator is present.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## auth/ (public)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Method | Path | Description |
+|---|---|---|
+| POST | `/auth/register` | Register a user (email + password) |
+| POST | `/auth/login` | Log in, returns a JWT |
 
-## Project setup
+## users/ (ADMIN only)
 
-```bash
-$ npm install
-```
+| Method | Path |
+|---|---|
+| POST | `/users` |
+| GET | `/users` |
+| GET | `/users/:id` |
+| DELETE | `/users/:id` |
 
-## Compile and run the project
+## employees/
 
-```bash
-# development
-$ npm run start
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/employees` | ADMIN |
+| GET | `/employees` | ADMIN, SUPERVISOR |
+| GET | `/employees/:id` | ⚠️ Any authenticated user — no `@Roles` decorator set |
+| PATCH | `/employees/:id` | ADMIN, SUPERVISOR |
+| DELETE | `/employees/:id` | ADMIN, SUPERVISOR |
 
-# watch mode
-$ npm run start:dev
+## attendance/
 
-# production mode
-$ npm run start:prod
-```
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/attendance/check-in/:employeeId` | ADMIN, GUARD (a GUARD can only check in for themselves) |
+| POST | `/attendance/check-out/:employeeId` | ADMIN, GUARD (same restriction) |
+| GET | `/attendance` | ADMIN, SUPERVISOR — query filters: `?date=` `?month=` `?active=true` `?employeeId=` `?locationId=` |
+| GET | `/attendance/:employeeId` | ADMIN, SUPERVISOR, GUARD (a GUARD can only view their own record) |
 
-## Run tests
+## assignments/
 
-```bash
-# unit tests
-$ npm run test
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/assignments` | ADMIN |
+| GET | `/assignments` | ADMIN, SUPERVISOR |
+| GET | `/assignments/:id` | ADMIN, SUPERVISOR |
+| DELETE | `/assignments/:id` | ADMIN |
 
-# e2e tests
-$ npm run test:e2e
+## clients/
 
-# test coverage
-$ npm run test:cov
-```
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/clients` | ADMIN |
+| GET | `/clients` | ADMIN |
+| GET | `/clients/:id` | ADMIN, SUPERVISOR |
+| PATCH | `/clients/:id` | ADMIN |
+| DELETE | `/clients/:id` | ADMIN |
 
-## Deployment
+## contracts/ (ADMIN only, all routes)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Method | Path |
+|---|---|
+| POST | `/contracts` |
+| GET | `/contracts` |
+| GET | `/contracts/:id` |
+| PATCH | `/contracts/:id` |
+| DELETE | `/contracts/:id` |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## locations/ (ADMIN only, all routes)
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+| Method | Path |
+|---|---|
+| POST | `/locations` |
+| GET | `/locations` |
+| GET | `/locations/:id` |
+| PATCH | `/locations/:id` |
+| DELETE | `/locations/:id` |
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## payroll/ (ADMIN only, all routes)
 
-## Resources
+| Method | Path |
+|---|---|
+| POST | `/payroll` |
+| GET | `/payroll` |
+| GET | `/payroll/:id` |
+| DELETE | `/payroll/:id` |
+| POST | `/payroll/generate` |
 
-Check out a few resources that may come in handy when working with NestJS:
+## app
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Health check, public |
 
-## Support
+---
+# securityERP Backend — API Routes
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Base URL:** `http://localhost:4000`
+**Framework:** NestJS
+**Auth:** All routes except `auth/*` and `/` require `JwtAuthGuard` (`Authorization: Bearer <token>`) plus `RolesGuard` where a `@Roles(...)` decorator is present.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## auth/ (public)
 
-## License
+| Method | Path | Description |
+|---|---|---|
+| POST | `/auth/register` | Register a user (email + password) |
+| POST | `/auth/login` | Log in, returns a JWT |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## users/ (ADMIN only)
+
+| Method | Path |
+|---|---|
+| POST | `/users` |
+| GET | `/users` |
+| GET | `/users/:id` |
+| DELETE | `/users/:id` |
+
+## employees/
+
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/employees` | ADMIN |
+| GET | `/employees` | ADMIN, SUPERVISOR |
+| GET | `/employees/:id` | ⚠️ Any authenticated user — no `@Roles` decorator set |
+| PATCH | `/employees/:id` | ADMIN, SUPERVISOR |
+| DELETE | `/employees/:id` | ADMIN, SUPERVISOR |
+
+## attendance/
+
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/attendance/check-in/:employeeId` | ADMIN, GUARD (a GUARD can only check in for themselves) |
+| POST | `/attendance/check-out/:employeeId` | ADMIN, GUARD (same restriction) |
+| GET | `/attendance` | ADMIN, SUPERVISOR — query filters: `?date=` `?month=` `?active=true` `?employeeId=` `?locationId=` |
+| GET | `/attendance/:employeeId` | ADMIN, SUPERVISOR, GUARD (a GUARD can only view their own record) |
+
+## assignments/
+
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/assignments` | ADMIN |
+| GET | `/assignments` | ADMIN, SUPERVISOR |
+| GET | `/assignments/:id` | ADMIN, SUPERVISOR |
+| DELETE | `/assignments/:id` | ADMIN |
+
+## clients/
+
+| Method | Path | Allowed roles |
+|---|---|---|
+| POST | `/clients` | ADMIN |
+| GET | `/clients` | ADMIN |
+| GET | `/clients/:id` | ADMIN, SUPERVISOR |
+| PATCH | `/clients/:id` | ADMIN |
+| DELETE | `/clients/:id` | ADMIN |
+
+## contracts/ (ADMIN only, all routes)
+
+| Method | Path |
+|---|---|
+| POST | `/contracts` |
+| GET | `/contracts` |
+| GET | `/contracts/:id` |
+| PATCH | `/contracts/:id` |
+| DELETE | `/contracts/:id` |
+
+## locations/ (ADMIN only, all routes)
+
+| Method | Path |
+|---|---|
+| POST | `/locations` |
+| GET | `/locations` |
+| GET | `/locations/:id` |
+| PATCH | `/locations/:id` |
+| DELETE | `/locations/:id` |
+
+## payroll/ (ADMIN only, all routes)
+
+| Method | Path |
+|---|---|
+| POST | `/payroll` |
+| GET | `/payroll` |
+| GET | `/payroll/:id` |
+| DELETE | `/payroll/:id` |
+| POST | `/payroll/generate` |
+
+## app
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Health check, public |
+
+---
+
+## Notes found during review
+
+1. **No `shifts` module exists in the backend** — but the frontend has `/shifts` pages. Confirm what those pages actually call; they may be pointing at `assignments` or a missing endpoint.
+2. **`GET /employees/:id`** is the only employee route without a `@Roles` decorator, so any authenticated user (including GUARD) can fetch any employee's details. Add `@Roles('ADMIN','SUPERVISOR')` if that's not intentional.
+
