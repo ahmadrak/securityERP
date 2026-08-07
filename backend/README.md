@@ -28,8 +28,7 @@
 |---|---|---|
 | POST | `/employees` | ADMIN |
 | GET | `/employees` | ADMIN, SUPERVISOR |
-| GET | `/employees/:id` | ADMINu, SUPERVISOR
-
+| GET | `/employees/:id` | ADMINu, SUPERVISOR |
 | PATCH | `/employees/:id` | ADMIN, SUPERVISOR |
 | DELETE | `/employees/:id` | ADMIN, SUPERVISOR |
 
