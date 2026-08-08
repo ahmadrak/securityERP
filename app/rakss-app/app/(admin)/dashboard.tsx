@@ -76,9 +76,9 @@ export default function Dashboard() {
       <View style={styles.header}>
         <View style={styles.badgeRow}>
           <Feather name="grid" size={14} color={COLORS.brass} />
-          <Text style={styles.badgeText}>لوحة الإدارة</Text>
+          <Text style={styles.badgeText}>Admin Panel</Text>
         </View>
-        <Text style={styles.title}>نظرة عامة</Text>
+        <Text style={styles.title}>Overview</Text>
       </View>
 
       {loading ? (
@@ -90,21 +90,21 @@ export default function Dashboard() {
           }
           showsVerticalScrollIndicator={false}
         >
-          {/* على الدوام الآن — بطاقة كبيرة */}
+          {/* On duty now — hero card */}
           <View style={styles.heroCard}>
-            <Text style={styles.heroLabel}>على الدوام الآن</Text>
+            <Text style={styles.heroLabel}>On Duty Now</Text>
             <Text style={styles.heroNumber}>{onDuty}</Text>
-            <Text style={styles.heroSub}>من أصل {totalGuards} حارس</Text>
+            <Text style={styles.heroSub}>out of {totalGuards} guards</Text>
           </View>
 
-          {/* شبكة الإحصائيات */}
+          {/* Stats grid */}
           <View style={styles.grid}>
             <View style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: '#24405E1A' }]}>
                 <Feather name="users" size={16} color={COLORS.steel} />
               </View>
               <Text style={styles.statNumber}>{totalGuards}</Text>
-              <Text style={styles.statLabel}>إجمالي الحراس</Text>
+              <Text style={styles.statLabel}>Total Guards</Text>
             </View>
 
             <View style={styles.statCard}>
@@ -112,7 +112,7 @@ export default function Dashboard() {
                 <Feather name="map-pin" size={16} color={COLORS.brass} />
               </View>
               <Text style={styles.statNumber}>{totalLocations}</Text>
-              <Text style={styles.statLabel}>إجمالي المواقع</Text>
+              <Text style={styles.statLabel}>Total Locations</Text>
             </View>
 
             <View style={[styles.statCard, { width: '100%' }]}>
@@ -140,8 +140,8 @@ export default function Dashboard() {
               </Text>
               <Text style={styles.statLabel}>
                 {shortLocations > 0
-                  ? 'مواقع ناقصة طاقم — تحتاج متابعة'
-                  : 'كل المواقع مكتملة الطاقم'}
+                  ? 'Locations understaffed — needs attention'
+                  : 'All locations fully staffed'}
               </Text>
             </View>
           </View>

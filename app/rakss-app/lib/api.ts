@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
-  baseURL: 'http://localhost:4000', // 👈 غيره حسب جهازك
+  baseURL: 'http://192.168.1.17:4000',
 });
 
 // 🔐 Add token automatically to every request

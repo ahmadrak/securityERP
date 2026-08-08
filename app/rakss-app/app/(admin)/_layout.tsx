@@ -54,7 +54,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'نظرة عامة',
+          title: 'Overview',
           tabBarIcon: ({ color, size }) => (
             <Feather name="grid" size={size} color={color} />
           ),
@@ -63,7 +63,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="employees"
         options={{
-          title: 'الموظفين',
+          title: 'Employees',
           tabBarIcon: ({ color, size }) => (
             <Feather name="users" size={size} color={color} />
           ),
@@ -72,7 +72,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="locations"
         options={{
-          title: 'المواقع',
+          title: 'Locations',
           tabBarIcon: ({ color, size }) => (
             <Feather name="map-pin" size={size} color={color} />
           ),
@@ -81,7 +81,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'حسابي',
+          title: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <Feather name="user" size={size} color={color} />
           ),

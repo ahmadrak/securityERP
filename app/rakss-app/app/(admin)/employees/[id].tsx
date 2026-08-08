@@ -8,11 +8,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
-  Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter, useLocalSearchParams } from 'expo-router';
 import api from '@/lib/api';
 
 const COLORS = {
@@ -27,12 +25,17 @@ const COLORS = {
   muted: '#5B6572',
 };
 
+type Assignment = {
+  location?: { id: string; name: string } | null;
+};
+
 type EmployeeProfile = {
   id: number;
   name: string;
   fileNumber: string;
   phone: string | null;
   phoneNumber: string | null;
+  whatsapp: string | null;
   type: string;
   status: string;
   emaratesId: string | null;
@@ -40,6 +43,7 @@ type EmployeeProfile = {
   nsiCert: string | null;
   psbdId: string | null;
   contract: string | null;
+  assignments?: Assignment[];
 };
 
 const DOCUMENTS = [
@@ -50,25 +54,24 @@ const DOCUMENTS = [
   { key: 'contract', label: 'Contract', icon: 'file-text' },
 ] as const;
 
-export default function ProfileScreen() {
+export default function EmployeeDetailScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
+    if (!id) return;
     try {
       setLoading(true);
-      const employeeId = await AsyncStorage.getItem('employeeId');
-      if (!employeeId) return;
-
-      const res = await api.get(`/employees/${employeeId}`);
+      const res = await api.get(`/employees/${id}`);
       setProfile(res.data);
     } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [id]);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,17 +79,18 @@ export default function ProfileScreen() {
     }, [load])
   );
 
+  const call = (number: string | null) => {
+    if (!number) return;
+    Linking.openURL(`tel:${number}`);
+  };
+
   const openDocument = (url: string | null) => {
     if (!url) return;
     Linking.openURL(url);
   };
 
-  const handleLogout = async () => {
-          await AsyncStorage.multiRemove(['token', 'role', 'employeeId']);
-          router.replace('/login');
-        }
-      
- 
+  const phone = profile?.phoneNumber || profile?.phone || profile?.whatsapp || null;
+  const location = profile?.assignments?.[0]?.location?.name;
 
   if (loading) {
     return (
@@ -100,10 +104,10 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.screen}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.badgeRow}>
-            <Feather name="user" size={14} color={COLORS.brass} />
-            <Text style={styles.badgeText}>My Profile</Text>
-          </View>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Feather name="chevron-left" size={20} color={COLORS.steel} />
+            <Text style={styles.backText}>Employees</Text>
+          </TouchableOpacity>
         </View>
 
         {/* ID card */}
@@ -125,15 +129,42 @@ export default function ProfileScreen() {
         {/* Contact info */}
         <Text style={styles.sectionTitle}>Contact Info</Text>
         <View style={styles.infoCard}>
-          <View style={styles.infoRow}>
+          <TouchableOpacity
+            onPress={() => call(phone)}
+            disabled={!phone}
+            style={styles.infoRow}
+          >
             <Feather name="phone" size={16} color={COLORS.steel} />
-            <Text style={styles.infoText}>
-              {profile?.phoneNumber || profile?.phone || 'Not on file'}
-            </Text>
-          </View>
-          <View style={[styles.infoRow, { borderTopWidth: 1, borderColor: COLORS.line, paddingTop: 12 }]}>
+            <Text style={styles.infoText}>{phone || 'Not on file'}</Text>
+            {phone ? (
+              <Feather name="phone-call" size={14} color={COLORS.ok} />
+            ) : null}
+          </TouchableOpacity>
+          <View
+            style={[
+              styles.infoRow,
+              { borderTopWidth: 1, borderColor: COLORS.line, paddingTop: 12 },
+            ]}
+          >
             <Feather name="briefcase" size={16} color={COLORS.steel} />
             <Text style={styles.infoText}>{profile?.type}</Text>
+          </View>
+          <View
+            style={[
+              styles.infoRow,
+              { borderTopWidth: 1, borderColor: COLORS.line, paddingTop: 12 },
+            ]}
+          >
+            <Feather
+              name="map-pin"
+              size={16}
+              color={location ? COLORS.steel : COLORS.muted}
+            />
+            <Text
+              style={[styles.infoText, !location && { color: COLORS.muted }]}
+            >
+              {location ?? 'No current location'}
+            </Text>
           </View>
         </View>
 
@@ -141,7 +172,9 @@ export default function ProfileScreen() {
         <Text style={styles.sectionTitle}>Documents</Text>
         <View style={styles.infoCard}>
           {DOCUMENTS.map((doc, i) => {
-            const url = profile?.[doc.key as keyof EmployeeProfile] as string | null;
+            const url = profile?.[doc.key as keyof EmployeeProfile] as
+              | string
+              | null;
             return (
               <TouchableOpacity
                 key={doc.key}
@@ -169,12 +202,6 @@ export default function ProfileScreen() {
             );
           })}
         </View>
-
-        {/* Logout button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Feather name="log-out" size={18} color={COLORS.danger} />
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -183,8 +210,8 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.surface, paddingHorizontal: 20, paddingTop: 24 },
   header: { marginBottom: 12 },
-  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  badgeText: { color: COLORS.brass, fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  backButton: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  backText: { color: COLORS.steel, fontSize: 15, fontWeight: '600' },
   idCard: {
     backgroundColor: COLORS.steel,
     borderRadius: 18,
@@ -244,16 +271,4 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   missingText: { fontSize: 11, color: COLORS.muted },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: COLORS.danger,
-    borderRadius: 14,
-    paddingVertical: 14,
-    marginBottom: 30,
-  },
-  logoutText: { color: COLORS.danger, fontSize: 15, fontWeight: '700' },
 });

@@ -3,13 +3,14 @@ import {
   View,
   Text,
   FlatList,
+  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   SafeAreaView,
   TextInput,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import api from '@/lib/api';
 
 const COLORS = {
@@ -33,6 +34,7 @@ type LocationItem = {
 };
 
 export default function LocationsScreen() {
+  const router = useRouter();
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -64,9 +66,9 @@ export default function LocationsScreen() {
       <View style={styles.header}>
         <View style={styles.badgeRow}>
           <Feather name="map-pin" size={14} color={COLORS.brass} />
-          <Text style={styles.badgeText}>لوحة الإدارة</Text>
+          <Text style={styles.badgeText}>Admin Panel</Text>
         </View>
-        <Text style={styles.title}>المواقع</Text>
+        <Text style={styles.title}>Locations</Text>
       </View>
 
       <View style={styles.searchBox}>
@@ -74,7 +76,7 @@ export default function LocationsScreen() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="ابحث عن موقع"
+          placeholder="Search for a location"
           placeholderTextColor={COLORS.muted}
           style={styles.searchInput}
         />
@@ -87,14 +89,23 @@ export default function LocationsScreen() {
           data={filtered}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 24 }}
-          ListEmptyComponent={<Text style={styles.emptyText}>ما فيه مواقع</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>No locations</Text>}
           renderItem={({ item }) => {
             const assigned = item.assignments?.length ?? 0;
             const required = item.requiredGuards ?? 0;
             const short = assigned < required;
 
             return (
-              <View style={styles.card}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(admin)/locations/[id]',
+                    params: { id: String(item.id) },
+                  })
+                }
+                style={styles.card}
+              >
                 <View style={styles.cardTop}>
                   <View
                     style={[
@@ -133,14 +144,16 @@ export default function LocationsScreen() {
                       {assigned}/{required}
                     </Text>
                   </View>
+
+                  <Feather name="chevron-right" size={18} color={COLORS.muted} />
                 </View>
 
                 {short && (
                   <Text style={styles.shortText}>
-                    ناقص {required - assigned} حارس
+                    Short {required - assigned} guard(s)
                   </Text>
                 )}
-              </View>
+              </TouchableOpacity>
             );
           }}
         />

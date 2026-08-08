@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '@/lib/api';
 
 export default function Login() {
   const router = useRouter();
@@ -26,24 +27,13 @@ export default function Login() {
 
       setLoading(true);
 
-      const res = await fetch('http://localhost:4000/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
+      const res = await api.post('/auth/login', { email, password });
+      const data = res.data;
 
       // 🔐 save token
       await AsyncStorage.setItem('token', data.access_token);
       await AsyncStorage.setItem('role', data.user.role);
-      await AsyncStorage.setItem('employeeId', String(data.user.employeeId)); // 👈 هذا السطر ناقص
+      await AsyncStorage.setItem('employeeId', String(data.user.employeeId)); // 👈 this line was missing
       await AsyncStorage.setItem('userId', String(data.user.id));
       await AsyncStorage.setItem('email', data.user.email);
 
@@ -56,7 +46,8 @@ export default function Login() {
       }
 
     } catch (err: any) {
-      Alert.alert('Login Error', err.message);
+      const message = err.response?.data?.message || err.message || 'Login failed';
+      Alert.alert('Login Error', message);
     } finally {
       setLoading(false);
     }

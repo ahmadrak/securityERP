@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import api from '@/lib/api';
 
 const COLORS = {
@@ -28,11 +28,11 @@ const COLORS = {
 };
 
 const TABS = [
-  { key: 'ALL', label: 'الكل' },
-  { key: 'GUARD', label: 'حراس' },
-  { key: 'SUPERVISOR', label: 'مشرفين' },
-  { key: 'MANAGER', label: 'مدراء' },
-  { key: 'HR', label: 'موارد بشرية' },
+  { key: 'ALL', label: 'All' },
+  { key: 'GUARD', label: 'Guards' },
+  { key: 'SUPERVISOR', label: 'Supervisors' },
+  { key: 'MANAGER', label: 'Managers' },
+  { key: 'HR', label: 'HR' },
 ];
 
 type Assignment = {
@@ -42,6 +42,7 @@ type Assignment = {
 type Employee = {
   id: number;
   name: string;
+  fileNumber: string;
   type: string;
   phone: string | null;
   phoneNumber: string | null;
@@ -51,6 +52,7 @@ type Employee = {
 };
 
 export default function EmployeesScreen() {
+  const router = useRouter();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -81,25 +83,29 @@ export default function EmployeesScreen() {
     Linking.openURL(`tel:${number}`);
   };
 
-  const filtered = employees.filter((e) =>
-    e.name.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = employees.filter((e) => {
+    const q = query.toLowerCase();
+    return (
+      e.name.toLowerCase().includes(q) ||
+      e.fileNumber?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <View style={styles.badgeRow}>
           <Feather name="users" size={14} color={COLORS.brass} />
-          <Text style={styles.badgeText}>لوحة الإدارة</Text>
+          <Text style={styles.badgeText}>Admin Panel</Text>
         </View>
-        <Text style={styles.title}>الموظفين</Text>
+        <Text style={styles.title}>Employees</Text>
       </View>
 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.tabsRow}
-        contentContainerStyle={{ gap: 8 }}
+        contentContainerStyle={{ gap: 8, alignItems: 'center', paddingVertical: 2 }}
       >
         {TABS.map((tab) => {
           const active = activeTab === tab.key;
@@ -130,7 +136,7 @@ export default function EmployeesScreen() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="ابحث بالاسم"
+          placeholder="Search by name or file number"
           placeholderTextColor={COLORS.muted}
           style={styles.searchInput}
         />
@@ -144,14 +150,21 @@ export default function EmployeesScreen() {
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ paddingBottom: 24 }}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>ما فيه نتائج</Text>
+            <Text style={styles.emptyText}>No results</Text>
           }
           renderItem={({ item }) => {
             const location = item.assignments?.[0]?.location?.name;
             const phone = item.phoneNumber || item.phone || item.whatsapp;
 
             return (
-              <View style={styles.card}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => router.push({
+                  pathname: '/(admin)/employees/[id]',
+                  params: { id: String(item.id) },
+                })}
+                style={styles.card}
+              >
                 <View style={styles.cardTop}>
                   <View style={styles.avatar}>
                     <Text style={styles.avatarText}>
@@ -161,6 +174,11 @@ export default function EmployeesScreen() {
 
                   <View style={{ flex: 1 }}>
                     <Text style={styles.name}>{item.name}</Text>
+                    {item.fileNumber ? (
+                      <Text style={styles.fileNumberText}>
+                        File #{item.fileNumber}
+                      </Text>
+                    ) : null}
                     <View style={styles.locationRow}>
                       <Feather
                         name="map-pin"
@@ -173,7 +191,7 @@ export default function EmployeesScreen() {
                           !location && { color: COLORS.muted },
                         ]}
                       >
-                        {location ?? 'بدون موقع حالي'}
+                        {location ?? 'No current location'}
                       </Text>
                     </View>
                   </View>
@@ -192,8 +210,10 @@ export default function EmployeesScreen() {
                       color={phone ? '#FFFFFF' : COLORS.muted}
                     />
                   </TouchableOpacity>
+
+                  <Feather name="chevron-right" size={18} color={COLORS.muted} />
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />
@@ -208,15 +228,22 @@ const styles = StyleSheet.create({
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
   badgeText: { color: COLORS.brass, fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
   title: { fontSize: 26, fontWeight: '700', color: COLORS.ink },
-  tabsRow: { marginBottom: 12, flexGrow: 0 },
+  tabsRow: { height: 44, marginBottom: 12, flexGrow: 0 },
   tab: {
+    height: 40,
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: COLORS.line,
     borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 18,
+    flexShrink: 0,
   },
-  tabText: { fontSize: 13, fontWeight: '600' },
+  tabText: {
+    fontSize: 13,
+    lineHeight: 16,
+    fontWeight: '600',
+    flexShrink: 0,
+  },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -250,6 +277,7 @@ const styles = StyleSheet.create({
   },
   avatarText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16 },
   name: { fontSize: 15, fontWeight: '600', color: COLORS.ink },
+  fileNumberText: { fontSize: 11, color: COLORS.muted, marginTop: 1 },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   locationText: { fontSize: 12, color: COLORS.steel },
   callButton: {

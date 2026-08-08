@@ -56,7 +56,7 @@ export default function Home() {
       setFetching(true);
       const id = await AsyncStorage.getItem('employeeId');
       if (!id) {
-        Alert.alert('خطأ', 'تعذر تحديد هوية الموظف، سجل الدخول من جديد');
+        Alert.alert('Error', 'Could not identify employee, please log in again');
         return;
       }
       setEmployeeId(Number(id));
@@ -85,31 +85,31 @@ export default function Home() {
 
       if (isCheckedIn) {
         await api.post(`/attendance/check-out/${employeeId}`);
-        Alert.alert('تم', 'تم تسجيل الانصراف بنجاح');
+        Alert.alert('Done', 'Check-out recorded successfully');
       } else {
         await api.post(`/attendance/check-in/${employeeId}`);
-        Alert.alert('تم', 'تم تسجيل الحضور بنجاح');
+        Alert.alert('Done', 'Check-in recorded successfully');
       }
 
       await loadStatus();
     } catch (err) {
       console.log(err);
-      Alert.alert('خطأ', isCheckedIn ? 'فشل تسجيل الانصراف' : 'فشل تسجيل الحضور');
+      Alert.alert('Error', isCheckedIn ? 'Failed to check out' : 'Failed to check in');
     } finally {
       setLoading(false);
     }
   };
 
   const actionColor = isCheckedIn ? COLORS.danger : COLORS.ok;
-  const actionLabel = isCheckedIn ? 'تسجيل انصراف' : 'تسجيل حضور';
+  const actionLabel = isCheckedIn ? 'Check Out' : 'Check In';
   const actionIcon = isCheckedIn ? 'log-out' : 'log-in';
 
-  const timeString = now.toLocaleTimeString('ar-AE', {
+  const timeString = now.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
   });
-  const dateString = now.toLocaleDateString('ar-AE', {
+  const dateString = now.toLocaleDateString('en-US', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -120,18 +120,18 @@ export default function Home() {
       <View style={styles.header}>
         <View style={styles.badgeRow}>
           <Feather name="shield" size={14} color={COLORS.brass} />
-          <Text style={styles.badgeText}>نظام حضور الحراس</Text>
+          <Text style={styles.badgeText}>Guard Attendance System</Text>
         </View>
-        <Text style={styles.title}>مرحباً بك</Text>
+        <Text style={styles.title}>Welcome</Text>
       </View>
 
-      {/* live clock card */}
+     
       <View style={styles.clockCard}>
         <Text style={styles.clockTime}>{timeString}</Text>
         <Text style={styles.clockDate}>{dateString}</Text>
       </View>
 
-      {/* status card */}
+     
       <View style={styles.statusCard}>
         {fetching ? (
           <ActivityIndicator color={COLORS.steel} />
@@ -145,24 +145,24 @@ export default function Home() {
                 ]}
               />
               <Text style={styles.statusLabel}>
-                {isCheckedIn ? 'أنت الحين بالدوام' : 'أنت الحين خارج الدوام'}
+                {isCheckedIn ? 'You are currently on duty' : 'You are currently off duty'}
               </Text>
             </View>
 
             {lastRecord && (
               <Text style={styles.statusSub}>
                 {isCheckedIn
-                  ? `حضرت الساعة ${new Date(lastRecord.checkIn).toLocaleTimeString('ar-AE', { hour: '2-digit', minute: '2-digit' })}`
+                  ? `Checked in at ${new Date(lastRecord.checkIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
                   : lastRecord.checkOut
-                  ? `آخر انصراف: ${new Date(lastRecord.checkOut).toLocaleTimeString('ar-AE', { hour: '2-digit', minute: '2-digit' })}`
-                  : 'لا يوجد سجل سابق'}
+                  ? `Last check-out: ${new Date(lastRecord.checkOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                  : 'No previous record'}
               </Text>
             )}
           </>
         )}
       </View>
 
-      {/* dynamic action button */}
+      
       <TouchableOpacity
         onPress={handlePress}
         disabled={loading || fetching}

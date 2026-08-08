@@ -48,7 +48,7 @@ export default function GuardLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'الحضور',
+          title: 'Attendance',
           tabBarIcon: ({ color, size }) => (
             <Feather name="clock" size={size} color={color} />
           ),
@@ -57,7 +57,7 @@ export default function GuardLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: 'سجلي',
+          title: 'History',
           tabBarIcon: ({ color, size }) => (
             <Feather name="list" size={size} color={color} />
           ),
@@ -66,7 +66,7 @@ export default function GuardLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'بياناتي',
+          title: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <Feather name="user" size={size} color={color} />
           ),

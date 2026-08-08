@@ -85,17 +85,17 @@ export default function AdminProfileScreen() {
         <View style={styles.header}>
           <View style={styles.badgeRow}>
             <Feather name="shield" size={14} color={COLORS.brass} />
-            <Text style={styles.badgeText}>حساب المدير</Text>
+            <Text style={styles.badgeText}>Admin Account</Text>
           </View>
         </View>
 
-        {/* بطاقة الهوية */}
+        {/* ID card */}
         <View style={styles.idCard}>
           <View style={styles.avatar}>
             <Feather name="user" size={28} color="#FFFFFF" />
           </View>
           <Text style={styles.name}>
-            {profile?.employee?.name || 'مدير النظام'}
+            {profile?.employee?.name || 'System Admin'}
           </Text>
           <Text style={styles.email}>{profile?.email}</Text>
 
@@ -104,8 +104,8 @@ export default function AdminProfileScreen() {
           </View>
         </View>
 
-        {/* معلومات الحساب */}
-        <Text style={styles.sectionTitle}>معلومات الحساب</Text>
+        {/* Account info */}
+        <Text style={styles.sectionTitle}>Account Info</Text>
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Feather name="mail" size={16} color={COLORS.steel} />
@@ -119,9 +119,9 @@ export default function AdminProfileScreen() {
           >
             <Feather name="calendar" size={16} color={COLORS.steel} />
             <Text style={styles.infoText}>
-              عضو منذ{' '}
+              Member since{' '}
               {profile?.createdAt
-                ? new Date(profile.createdAt).toLocaleDateString('ar-AE', {
+                ? new Date(profile.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                   })
@@ -130,10 +130,10 @@ export default function AdminProfileScreen() {
           </View>
         </View>
 
-        {/* زر تسجيل الخروج */}
+        {/* Logout button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Feather name="log-out" size={18} color={COLORS.danger} />
-          <Text style={styles.logoutText}>تسجيل الخروج</Text>
+          <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

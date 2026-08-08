@@ -43,7 +43,7 @@ export default function HistoryScreen() {
 
       const res = await api.get(`/attendance/${employeeId}`);
       const data: AttendanceRecord[] = res.data ?? [];
-      // الأحدث أول
+      // Most recent first
       setRecords([...data].reverse());
     } catch (err) {
       console.log(err);
@@ -60,14 +60,14 @@ export default function HistoryScreen() {
 
   const formatTime = (iso: string | null) =>
     iso
-      ? new Date(iso).toLocaleTimeString('ar-AE', {
+      ? new Date(iso).toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
         })
       : '—';
 
   const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString('ar-AE', {
+    new Date(iso).toLocaleDateString('en-US', {
       weekday: 'short',
       day: 'numeric',
       month: 'short',
@@ -78,9 +78,9 @@ export default function HistoryScreen() {
       <View style={styles.header}>
         <View style={styles.badgeRow}>
           <Feather name="clock" size={14} color={COLORS.brass} />
-          <Text style={styles.badgeText}>سجل الحضور</Text>
+          <Text style={styles.badgeText}>Attendance Log</Text>
         </View>
-        <Text style={styles.title}>سجلي</Text>
+        <Text style={styles.title}>History</Text>
       </View>
 
       {loading ? (
@@ -91,7 +91,7 @@ export default function HistoryScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 24 }}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>ما فيه سجل حضور بعد</Text>
+            <Text style={styles.emptyText}>No attendance records yet</Text>
           }
           renderItem={({ item }) => {
             const isOngoing = item.checkIn && !item.checkOut;
@@ -101,7 +101,7 @@ export default function HistoryScreen() {
                   <Text style={styles.dateText}>{formatDate(item.date)}</Text>
                   {isOngoing && (
                     <View style={styles.ongoingBadge}>
-                      <Text style={styles.ongoingText}>بالدوام الآن</Text>
+                      <Text style={styles.ongoingText}>On duty now</Text>
                     </View>
                   )}
                 </View>
@@ -109,13 +109,13 @@ export default function HistoryScreen() {
                 <View style={styles.timesRow}>
                   <View style={styles.timeBlock}>
                     <Feather name="log-in" size={13} color={COLORS.ok} />
-                    <Text style={styles.timeLabel}>حضور</Text>
+                    <Text style={styles.timeLabel}>Check-in</Text>
                     <Text style={styles.timeValue}>{formatTime(item.checkIn)}</Text>
                   </View>
 
                   <View style={styles.timeBlock}>
                     <Feather name="log-out" size={13} color={COLORS.danger} />
-                    <Text style={styles.timeLabel}>انصراف</Text>
+                    <Text style={styles.timeLabel}>Check-out</Text>
                     <Text style={styles.timeValue}>{formatTime(item.checkOut)}</Text>
                   </View>
                 </View>
