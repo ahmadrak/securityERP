@@ -144,7 +144,7 @@ async create(
   findAll(@Query('type') type?: EmployeeType) {
     return this.employeeService.findAll(type);
   }
-
+  @Roles('ADMIN', 'SUPERVISOR')
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.employeeService.findOne(id);
